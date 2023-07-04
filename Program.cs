@@ -1,65 +1,75 @@
 ﻿using System;
-using System.Runtime.ExceptionServices;
-using System.Threading.Channels;
-
+using System.Threading;
+using System.Collections.Generic;
 class Program
 {
     static void Main(string[] args)
     {
-        List<string> operations = new List<string>();
+        List<string> Operations = new List<string>();
 
-        operations.Add("addition");
-        operations.Add("subtraction");
-        operations.Add("multiplication");
-        operations.Add("division");
-        operations.Add("exponentiation");
-        string type;
-        int input_1, input_2, output;
-        
+        Operations.Add("addition");
+        Operations.Add("subtraction");
+        Operations.Add("multiplication");
+        Operations.Add("division");
+        Operations.Add("exponentiation");
+        string Type;
+        int InputOne,
+            InputTwo,
+            Answer;
+
         Console.WriteLine("Welcome to Keira's C Sharp Calculator");
-        Console.Write("List of Operations:\n" +
-            "1. Addition\n" +
-            "2. Subtraction\n" +
-            "3. Multiplication\n" +
-            "4. Division\n" +
-            "5. Exponentiation\n");
-        Console.WriteLine("Please enter the name of the operation you wish to complete (case insensitive)");
-       type = Console.ReadLine().ToLower();
-        while (!operations.Contains(type))
+        Console.Write(
+            "List of Operations:\n"
+                + "1. Addition\n"
+                + "2. Subtraction\n"
+                + "3. Multiplication\n"
+                + "4. Division\n"
+                + "5. Exponentiation\n"
+        );
+        Console.WriteLine(
+            "Please enter the name of the operation you wish to complete (case insensitive)"
+        );
+        Type = Console.ReadLine().ToLower();
+        while (!Operations.Contains(Type))
         {
             Console.WriteLine("Invalid Choice. Choose one of the above listed.");
-            type = Console.ReadLine().ToLower();
-        };
-        Console.WriteLine("Please enter the numbers you wish to add together: ");
-        input_1 = Convert.ToInt32(Console.ReadLine());
-        input_2 = Convert.ToInt32(Console.ReadLine());
-        output = 0;
-        if (type == "addition")
-        {
-            output = input_1 + input_2;
+            Type = Console.ReadLine().ToLower();
         }
-        else if (type == "subtraction")
+        ;
+        Console.WriteLine("Please enter the 2 Inputs. Please be aware the FIRST number you enter will be divided by the SECOND number. (1/2 = 0.5)");
+        InputOne = Convert.ToInt32(Console.ReadLine());
+        InputTwo = Convert.ToInt32(Console.ReadLine());
+        Answer = 0;
+        if (Type == "addition")
         {
-            output = input_1 - input_2;
+            Answer = InputOne + InputTwo;
+            Console.WriteLine($"The equation {InputOne}+{InputTwo} responded with {Answer}");
         }
-            else if (type == "multiplication")
+        else if (Type == "subtraction")
         {
-            output = input_1 * input_2;
+            Answer = InputOne - InputTwo;
+            Console.WriteLine($"The equation {InputOne}-{InputTwo} responded with {Answer}");
         }
-        else if (type == "division")
+        else if (Type == "multiplication")
         {
-            output = input_1 / input_2;
+            Answer = InputOne * InputTwo;
+            Console.WriteLine($"The equation {InputOne}*{InputTwo} responded with {Answer}");
         }
-        else if (type == "exponentiation")
+        else if (Type == "division")
         {
-            output = Convert.ToInt32(Math.Pow(input_1, input_2));
+            Answer = InputOne / InputTwo;
+            Console.WriteLine($"The equation {InputOne}/{InputTwo} responded with {Answer}");
         }
-        Console.WriteLine($"The output of the operation ({type}) outputted as {output}");
-        for (int i=0; i <5; i++)
+        else if (Type == "exponentiation")
         {
-            Console.WriteLine($"Shutting down in {5-i}");
+            Answer = Convert.ToInt32(Math.Pow(InputOne, InputTwo));
+            Console.WriteLine($"The equation {InputOne}^{InputTwo} responded with {Answer}");
+        }
+        int max = 3;
+        for (int i = 0; i < max; i++)
+        {
+            Console.WriteLine($"Shutting down in {max - i}");
             Thread.Sleep(1000);
         }
-        
     }
 }
