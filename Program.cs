@@ -1,75 +1,118 @@
 ﻿using System;
+using System.Data;
+using System.Text.RegularExpressions;
 using System.Threading;
-using System.Collections.Generic;
+
 class Program
 {
     static void Main(string[] args)
     {
-        List<string> Operations = new List<string>();
-
-        Operations.Add("addition");
-        Operations.Add("subtraction");
-        Operations.Add("multiplication");
-        Operations.Add("division");
-        Operations.Add("exponentiation");
-        string Type;
-        int InputOne,
-            InputTwo,
-            Answer;
-
         Console.WriteLine("Welcome to Keira's C Sharp Calculator");
-        Console.Write(
-            "List of Operations:\n"
-                + "1. Addition\n"
-                + "2. Subtraction\n"
-                + "3. Multiplication\n"
-                + "4. Division\n"
-                + "5. Exponentiation\n"
-        );
-        Console.WriteLine(
-            "Please enter the name of the operation you wish to complete (case insensitive)"
-        );
-        Type = Console.ReadLine().ToLower();
-        while (!Operations.Contains(Type))
-        {
-            Console.WriteLine("Invalid Choice. Choose one of the above listed.");
-            Type = Console.ReadLine().ToLower();
-        }
-        ;
-        Console.WriteLine("Please enter the 2 Inputs. Please be aware the FIRST number you enter will be divided by the SECOND number. (1/2 = 0.5)");
-        InputOne = Convert.ToInt32(Console.ReadLine());
-        InputTwo = Convert.ToInt32(Console.ReadLine());
-        Answer = 0;
-        if (Type == "addition")
-        {
-            Answer = InputOne + InputTwo;
-            Console.WriteLine($"The equation {InputOne}+{InputTwo} responded with {Answer}");
-        }
-        else if (Type == "subtraction")
-        {
-            Answer = InputOne - InputTwo;
-            Console.WriteLine($"The equation {InputOne}-{InputTwo} responded with {Answer}");
-        }
-        else if (Type == "multiplication")
-        {
-            Answer = InputOne * InputTwo;
-            Console.WriteLine($"The equation {InputOne}*{InputTwo} responded with {Answer}");
-        }
-        else if (Type == "division")
-        {
-            Answer = InputOne / InputTwo;
-            Console.WriteLine($"The equation {InputOne}/{InputTwo} responded with {Answer}");
-        }
-        else if (Type == "exponentiation")
-        {
-            Answer = Convert.ToInt32(Math.Pow(InputOne, InputTwo));
-            Console.WriteLine($"The equation {InputOne}^{InputTwo} responded with {Answer}");
-        }
+
+        string input = GetEquationFromUser();
+        double result = EvaluateExpression(input);
+
+        Console.WriteLine($"Result: {result}");
+
         int max = 3;
         for (int i = 0; i < max; i++)
         {
             Console.WriteLine($"Shutting down in {max - i}");
             Thread.Sleep(1000);
         }
+    }
+
+    static string GetEquationFromUser()
+    {
+        Console.WriteLine("Please enter an equation:");
+        return Console.ReadLine();
+    }
+
+    static double EvaluateExpression(string equation)
+    {
+        equation = equation.Replace(" ", "");
+        equation = ReplaceVariablesWithValues(equation);
+
+        if (equation.Contains("("))
+        {
+            equation = EvaluateInnermostParentheses(equation);
+        }
+        else if (equation.Contains("^"))
+        {
+            equation = EvaluateExponentiation(equation);
+        }
+        else if (equation.Contains("x"))
+        {
+            return HandleAlgebraicTerm();
+        }
+
+        double result = Evaluate(equation);
+
+        return result;
+    }
+
+    static string ReplaceVariablesWithValues(string equation)
+    {
+        var variables = Regex.Matches(equation, @"\b[a-zA-Z]+\b");
+        foreach (Match variable in variables)
+        {
+            string variableName = variable.Value;
+            string variableValue = GetVariableValue(variableName);
+            equation = equation.Replace(variableName, variableValue);
+        }
+        return equation;
+    }
+
+    static string EvaluateInnermostParentheses(string equation)
+    {
+        string pattern = @"\(([^()]+)\)";
+        Match match = Regex.Match(equation, pattern);
+        if (match.Success)
+        {
+            string innerExpression = match.Groups[1].Value;
+            double innerResult = EvaluateExpression(innerExpression);
+            equation = equation.Replace(match.Value, innerResult.ToString());
+        }
+        return equation;
+    }
+
+    static string EvaluateExponentiation(string equation)
+    {
+        string pattern = @"(\d+(\.\d+)?)\^(\d+(\.\d+)?)";
+        Match match = Regex.Match(equation, pattern);
+        if (match.Success)
+        {
+            double baseValue = double.Parse(match.Groups[1].Value);
+            double exponentValue = double.Parse(match.Groups[3].Value);
+            double result = Math.Pow(baseValue, exponentValue);
+            equation = equation.Replace(match.Value, result.ToString());
+        }
+        return equation;
+    }
+
+    static double Evaluate(string expression)
+    {
+        try
+        {
+            DataTable dataTable = new DataTable();
+            var result = dataTable.Compute(expression, "");
+            return Convert.ToDouble(result);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Expression evaluation failed: {ex.Message}");
+        }
+    }
+
+    static string GetVariableValue(string variableName)
+    {
+        Console.Write($"Enter the value for {variableName}: ");
+        return Console.ReadLine();
+    }
+
+    static double HandleAlgebraicTerm()
+    {
+        Console.WriteLine("Algebraic terms have not been implemented yet.");
+        return 0;
     }
 }
